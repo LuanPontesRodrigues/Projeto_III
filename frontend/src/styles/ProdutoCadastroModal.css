@@ -1,0 +1,80 @@
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  min-width: 350px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.modal h2 {
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.modal form {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal label {
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+  color: #333;
+}
+
+.modal input {
+  margin-bottom: 1rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+}
+
+.modal input::placeholder {
+  color: #aaa;
+}
+
+.botoes {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.botoes button {
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.botoes button[type="button"] {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  color: #333;
+}
+
+.botoes button[type="submit"] {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.botoes button:hover {
+  opacity: 0.9;
+}

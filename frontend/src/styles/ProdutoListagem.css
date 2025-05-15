@@ -1,0 +1,84 @@
+/* Estilos específicos da listagem de produtos */
+
+.container {
+    padding: 20px;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .novo-produto {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+  }
+  
+  .filtros {
+    margin-bottom: 20px;
+  }
+  
+  .filtros input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+  }
+  
+  .tabela-produtos {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  
+  .tabela-produtos th, .tabela-produtos td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .tabela-produtos th {
+    background-color: #f3f4f6;
+  }
+  
+  .tabela-produtos button {
+    margin-right: 5px;
+    background: none;
+    border: none;
+    font-size: 18px;
+  }
+  
+  .paginacao {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+  
+  .paginacao button {
+    margin-left: 10px;
+    padding: 8px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background-color: white;
+  }
+  
+  /* Layout principal com sidebar */
+.layout {
+    display: flex;
+  }
+  
+  /* Conteúdo principal alinhado à direita da sidebar */
+  .content {
+    margin-left: 250px; /* mesmo valor da largura da sidebar */
+    padding: 20px;
+    width: calc(100% - 250px);
+  }
+    
