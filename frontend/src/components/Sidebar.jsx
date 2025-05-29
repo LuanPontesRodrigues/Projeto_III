@@ -1,9 +1,7 @@
-// Importa a biblioteca React
 import React from 'react';
-// Importa o arquivo de estilo da sidebar
+import { Link } from 'react-router-dom'; // Importa o Link para navegação SPA
 import '../styles/Sidebar.css';
 
-// Componente funcional da Sidebar
 const Sidebar = () => {
   return (
     <aside className="sidebar">
@@ -15,20 +13,19 @@ const Sidebar = () => {
       {/* Menu lateral com seções */}
       <nav className="menu">
         <ul>
-          {/* Título da seção */}
+          {/* Seção Listagem */}
           <li className="menu-title">Listagem
             <ul>
-
-          {/* Itens de submenu */}
-          <li><a href="#" className='submenu-item'>Produto</a></li>
-          <li><a href="#" className='submenu-item'>Fornecedor</a></li>
-          <li><a href="#" className='submenu-item'>Cliente</a></li>
+              <li><Link to="/" className="submenu-item">Produto</Link></li>
+              <li><Link to="/fornecedor" className="submenu-item">Fornecedor</Link></li>
+              <li><Link to="/cliente" className="submenu-item">Cliente</Link></li>
             </ul>
-        </li>
-          
-        <ul>
-            <li className="menu-title">Estoque</li>
-        </ul>
+          </li>
+
+          {/* Seção Estoque */}
+          <li className="menu-title">
+            <Link to="/dashboard" className="submenu-item">Estoque</Link>
+          </li>
         </ul>
       </nav>
 

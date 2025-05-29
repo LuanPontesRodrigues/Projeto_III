@@ -46,3 +46,19 @@ exports.deleteProduct = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.getEstoque = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT id, nome, codigo, preco, quantidade, 
+             (preco * quantidade) AS valor_total_estoque
+      FROM produtos
+      ORDER BY nome
+    `);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Erro ao buscar estoque:', err);
+    res.status(500).json({ error: 'Erro ao buscar dados do estoque.' });
+  }
+};

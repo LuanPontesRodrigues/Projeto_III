@@ -1,15 +1,18 @@
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
-const productRoutes = require('./routes/productRoutes');
-
 const app = express();
+
+const productRoutes = require('./routes/productRoutes');
+const vendasRoutes = require('./routes/vendas');
+const dashboardRoutes = require('./routes/dashboard');
+
 app.use(cors());
 app.use(express.json());
 
-app.use('/api', productRoutes);
+app.use('/api/produtos', productRoutes);
+app.use('/api/vendas', vendasRoutes);
+app.use('/api', dashboardRoutes);
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+app.listen(3000, () => {
+  console.log('Servidor rodando na porta 3000');
 });

@@ -6,5 +6,7 @@ router.get('/produtos', productController.getProducts);
 router.post('/produtos', productController.createProduct);
 router.put('/produtos/:id', productController.updateProduct);
 router.delete('/produtos/:id', productController.deleteProduct);
+router.get('/estoque', productController.getEstoque);
+
 
 module.exports = router;
