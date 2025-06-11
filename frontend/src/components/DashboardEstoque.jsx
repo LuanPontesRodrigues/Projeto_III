@@ -10,7 +10,7 @@ const DashboardEstoque = () => {
   const [dados, setDados] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/dashboard') // Ajuste a URL conforme sua rota
+    fetch('http://localhost:5000/api/dashboard') // Ajuste a URL conforme sua rota
       .then(res => res.json())
       .then(data => setDados(data));
   }, []);
