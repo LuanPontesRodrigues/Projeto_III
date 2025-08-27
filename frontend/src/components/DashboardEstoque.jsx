@@ -21,11 +21,11 @@ const DashboardEstoque = () => {
     <div className="dashboard-container">
       {/* Cards de resumo */}
       <div className="summary-cards">
-        <div className="card eletrônicos">Eletrônicos <span>R$ {dados.resumo.eletronicos}</span></div>
-        <div className="card vestuario">Vestuário <span>R$ {dados.resumo.vestuario}</span></div>
-        <div className="card livros">Livros <span>R$ {dados.resumo.livros}</span></div>
+        <div className="card eletrônicos">Eletrônicos <span>R$ {new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(dados.resumo.eletronicos)}</span></div>
+        <div className="card vestuario">Vestuário <span>R$ {new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(dados.resumo.vestuario)}</span></div>
+        <div className="card livros">Livros <span>R$ {new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(dados.resumo.livros)}</span></div>
       </div>
-
+    <div className="graficos-container">
       {/* Gráfico de linha */}
       <div className="grafico-linha">
         <h3>Faturamento Mensal</h3>
@@ -56,6 +56,7 @@ const DashboardEstoque = () => {
             }))
           }}
         />
+        </div>
       </div>
     </div>
   );

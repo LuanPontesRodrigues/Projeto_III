@@ -31,9 +31,29 @@
   margin-top: 10px;
 }
 
+
+
 .grafico-linha, .grafico-barras {
+  flex: 1;
+  min-width: 0;
   margin-bottom: 40px;
   padding: 20px;
   background-color: #2a2a40;
   border-radius: 12px;
+}
+
+.graficos-container {
+  display: flex;
+  gap: 50px;
+  margin-bottom: 40px;
+}
+:root, body, html {
+  background-color: #1e1e2f;
+  margin: 0;
+  padding: 0;
+}
+.card:hover {
+  transform: translateY(-5px);
+  transition: transform 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 }
