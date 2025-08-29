@@ -1,37 +1,64 @@
-import React from 'react';
-import { Link } from 'react-router-dom'; // Importa o Link para navegação SPA
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { BsListTask, BsBox, BsChevronDown, BsBoxArrowRight } from 'react-icons/bs';
 import '../styles/Sidebar.css';
 
 const Sidebar = () => {
+  const [isListagemOpen, setIsListagemOpen] = useState(false);
+  const [isEstoqueOpen, setIsEstoqueOpen] = useState(true);
+  
+  // Estado para controlar a visibilidade da barra lateral
+  const [isSidebarHovered, setIsSidebarHovered] = useState(false);
+
   return (
-    <aside className="sidebar">
-      {/* Área da logo */}
+    <aside 
+      className={`sidebar ${isSidebarHovered ? 'visible' : ''}`}
+      onMouseEnter={() => setIsSidebarHovered(true)}
+      onMouseLeave={() => setIsSidebarHovered(false)}
+    >
       <div className="logo">
-        <img src="/logo.png" alt="Logo" />
+        <img src="/Logo.png" alt="Logo" />
       </div>
 
-      {/* Menu lateral com seções */}
       <nav className="menu">
         <ul>
-          {/* Seção Listagem */}
-          <li className="menu-title">Listagem
-            <ul>
-              <li><Link to="/" className="submenu-item">Produto</Link></li>
-              <li><Link to="/fornecedor" className="submenu-item">Fornecedor</Link></li>
-              <li><Link to="/cliente" className="submenu-item">Cliente</Link></li>
-            </ul>
+          <li className={`menu-item ${isListagemOpen ? 'active' : ''}`} onClick={() => setIsListagemOpen(!isListagemOpen)}>
+            <div className="menu-title">
+              <BsListTask className="menu-icon" />
+              <span>Listagem</span>
+              <BsChevronDown className={`toggle-arrow ${isListagemOpen ? 'open' : ''}`} />
+            </div>
+            {isListagemOpen && (
+              <ul className="submenu">
+                <li><Link to="/" className="submenu-item">Produto</Link></li>
+                <li><Link to="/fornecedor" className="submenu-item">Fornecedor</Link></li>
+                <li><Link to="/clientes" className="submenu-item">Cliente</Link></li>
+              </ul>
+            )}
           </li>
 
-          {/* Seção Estoque */}
-          <li className="menu-title">
-            <Link to="/dashboard" className="submenu-item">Estoque</Link>
+          <li className={`menu-item ${isEstoqueOpen ? 'active' : ''}`} onClick={() => setIsEstoqueOpen(!isEstoqueOpen)}>
+            <div className="menu-title">
+              <BsBox className="menu-icon" />
+              <span>Estoque</span>
+              <BsChevronDown className={`toggle-arrow ${isEstoqueOpen ? 'open' : ''}`} />
+            </div>
+            {isEstoqueOpen && (
+              <ul className="submenu">
+                <li><Link to="/dashboard" className="submenu-item">Consulta</Link></li>
+                <li><Link to="/entrada" className="submenu-item">Entrada</Link></li>
+                <li><Link to="/saida" className="submenu-item">Saida</Link></li>
+              </ul>
+            )}
           </li>
         </ul>
       </nav>
 
-      {/* Rodapé com botão de logout */}
       <div className="logout">
-        <button>Encerrar Sessão</button>
+        <button>
+          <BsBoxArrowRight className="logout-icon" />
+          <span>Encerrar Sessão</span>
+        </button>
       </div>
     </aside>
   );
