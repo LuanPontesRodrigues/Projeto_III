@@ -27,7 +27,6 @@ const VendaListagemView = () => {
     carregarVendas();
   }, [carregarVendas]);
 
-  // Recarrega automaticamente quando o formulário disparar o evento
   useEffect(() => {
     const handler = () => carregarVendas();
     window.addEventListener("atualizarVendas", handler);
@@ -35,77 +34,80 @@ const VendaListagemView = () => {
   }, [carregarVendas]);
 
   return (
-    <div className="container-fluid">
-      {/* Header */}
+    <div className="container py-3">
       <div className="d-flex align-items-center justify-content-between mb-3">
-        <h1 className="h4 m-0">Listagem de Vendas</h1>
-        <button
-          className="btn btn-primary"
-          onClick={() => navigate("/vendas/nova")}
-        >
-          + Nova venda
+        <h1 className="h4 m-0">Saída</h1>
+        <button className="btn btn-primary" onClick={() => navigate("/vendas/nova")}>
+          + Nova Saída
         </button>
       </div>
 
-      {/* Estado de carregamento */}
-      {loading && (
-        <div className="d-flex align-items-center gap-2 text-muted">
-          <div className="spinner-border spinner-border-sm" role="status" />
-          <span>Carregando…</span>
-        </div>
-      )}
+      {loading && <div className="alert alert-secondary">Carregando…</div>}
+      {erro && <div className="alert alert-danger">{erro}</div>}
 
-      {/* Erro */}
-      {erro && (
-        <div className="alert alert-danger" role="alert">
-          {erro}
-        </div>
-      )}
-
-      {/* Tabela */}
       {!loading && !erro && (
-        <div className="table-responsive">
-          <table className="table table-hover align-middle">
-            <thead className="table-light">
-              <tr>
-                <th scope="col">ID</th>
-                <th scope="col">Produto</th>
-                <th scope="col">Quantidade</th>
-                <th scope="col">Valor Unitário (R$)</th>
-                <th scope="col">Valor Total (R$)</th>
-                <th scope="col">Data da Venda</th>
-              </tr>
-            </thead>
-            <tbody>
-              {vendas.length > 0 ? (
-                vendas.map((venda) => {
-                  const valorUnit = Number(venda.valor_unitario) || 0;
-                  const qtd = Number(venda.quantidade) || 0;
-                  const total = qtd * valorUnit;
-                  const dt = venda.data_entrada
-                    ? new Date(venda.data_entrada).toLocaleDateString("pt-BR")
-                    : "-";
-
-                  return (
-                    <tr key={venda.id}>
-                      <td>{venda.id}</td>
-                      <td>{venda.produto}</td>
-                      <td>{qtd}</td>
-                      <td>{valorUnit.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
-                      <td>{total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
-                      <td>{dt}</td>
-                    </tr>
-                  );
-                })
-              ) : (
+        <div className="card shadow-sm">
+          <div className="table-responsive">
+            <table className="table align-middle mb-0">
+              <thead className="table-light">
                 <tr>
-                  <td colSpan="6" className="text-center text-muted py-4">
-                    Nenhuma venda cadastrada.
-                  </td>
+                  <th>Produto</th>
+                  <th>Código</th>
+                  <th>Quantidade</th>
+                  <th>Nota Fiscal</th>
+                  <th>Data de saída</th>
+                  <th>Cliente</th>
+                  <th>Valor Unitário</th>
+                  <th>Valor Total</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {vendas.length === 0 ? (
+                  <tr>
+                    <td colSpan="8" className="text-center text-muted py-4">
+                      Nenhuma saída cadastrada.
+                    </td>
+                  </tr>
+                ) : (
+                  vendas.map((v) => {
+                    const qtd = Number(v.quantidade) || 0;
+                    const vu = Number(v.valor_unitario) || 0;
+                    const total = qtd * vu;
+
+                    // Campos tolerantes: se o backend ainda não envia, mostra "-"
+                    return (
+                      <tr key={v.id}>
+                        <td>{v.produto || "-"}</td>
+                        <td>{v.codigo_produto || v.codigo || "-"}</td>
+                        <td>{qtd}</td>
+                        <td>{v.nota_fiscal || "-"}</td>
+                        <td>
+                          {v.data_saida
+                            ? new Date(v.data_saida).toLocaleDateString("pt-BR")
+                            : v.data_entrada
+                            ? new Date(v.data_entrada).toLocaleDateString("pt-BR")
+                            : "-"}
+                        </td>
+                        <td>{v.cliente || v.cliente_nome || "-"}</td>
+                        <td>
+                          R{"$ "}
+                          {vu.toLocaleString("pt-BR", {
+                            minimumFractionDigits: 2,
+                          })}
+                        </td>
+                        <td>
+                          R{"$ "}
+                          {total.toLocaleString("pt-BR", {
+                            minimumFractionDigits: 2,
+                          })}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

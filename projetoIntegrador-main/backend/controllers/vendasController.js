@@ -5,7 +5,6 @@ const pool = require('../models/db');
 exports.createVenda = async (req, res) => {
   let { produto_id, quantidade } = req.body;
 
-  // Normaliza e valida
   produto_id = Number(produto_id);
   quantidade = Number(quantidade);
 
@@ -14,7 +13,7 @@ exports.createVenda = async (req, res) => {
   }
 
   try {
-    // Verifica produto e estoque
+    // Confere produto e estoque
     const prodRes = await pool.query(
       'SELECT id, preco, quantidade FROM produtos WHERE id = $1',
       [produto_id]
@@ -28,7 +27,6 @@ exports.createVenda = async (req, res) => {
       return res.status(400).json({ error: 'Estoque insuficiente.' });
     }
 
-    // Transação: insere venda e atualiza estoque
     await pool.query('BEGIN');
 
     await pool.query(
@@ -46,17 +44,15 @@ exports.createVenda = async (req, res) => {
 
     await pool.query('COMMIT');
     return res.status(201).json({ message: 'Venda registrada com sucesso.' });
-
   } catch (err) {
-    // Garante rollback se algo falhar após o BEGIN
-    try { await pool.query('ROLLBACK'); } catch (_) {}
+    try { await pool.query('ROLLBACK'); } catch {}
     console.error('Erro ao registrar venda:', err);
     return res.status(500).json({ error: 'Erro ao registrar venda.' });
   }
 };
 
 // GET /api/vendas
-exports.getVendas = async (req, res) => {
+exports.getVendas = async (_req, res) => {
   try {
     const result = await pool.query(`
       SELECT
@@ -64,10 +60,10 @@ exports.getVendas = async (req, res) => {
         p.nome AS produto,
         v.quantidade,
         v.valor_unitario,
-        v.data_entrada   -- existe no seu schema; se renomear, ajuste aqui
+        v.data_venda AS data_entrada  -- alias p/ não quebrar o frontend atual
       FROM vendas v
       JOIN produtos p ON v.produto_id = p.id
-      ORDER BY v.id DESC  -- ou ORDER BY v.data_entrada DESC se preferir
+      ORDER BY v.data_venda DESC
     `);
 
     return res.json(result.rows);
