@@ -12,6 +12,7 @@ import EntradaListagemView from './components/EntradaListagemView';
 import "./styles/custom.css";
 import VendasFormView from "./components/VendasFormView";
 import VendaListagemView from './components/VendaListagemView';
+import ProdutoEmRotaListagemView from "./components/ProdutoEmRotaListagemView";
 
 const App = () => {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -41,6 +42,7 @@ const App = () => {
             <Route path="/entrada/nova" element={<EntradaFormView />} />
             <Route path="/vendas" element={<VendaListagemView />} />
             <Route path='vendas/nova' element={<VendasFormView />} />
+            <Route path="/produtos-em-rota" element={<ProdutoEmRotaListagemView />} />
 
           </Routes>
         </main>

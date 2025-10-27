@@ -3,6 +3,7 @@ const cors = require('cors');
 const app = express();
 
 const productRoutes = require('./routes/productRoutes');
+const produtoRotaRoutes = require('./routes/produtoRotaRoutes');
 const vendasRoutes = require('./routes/vendas');
 const dashboardRoutes = require('./routes/dashboard');
 const fornecedorRoutes = require('./routes/fornecedorRoutes');
@@ -13,6 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/produtos', productRoutes);
+app.use('/api/produtos-em-rota', produtoRotaRoutes);
 app.use('/api/vendas', vendasRoutes);
 app.use('/api', dashboardRoutes);
 app.use('/api/fornecedores', fornecedorRoutes);
