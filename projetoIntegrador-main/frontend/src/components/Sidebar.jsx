@@ -6,7 +6,9 @@ import {
   FaSignOutAlt, 
   FaChartBar, 
   FaPlusSquare, 
-  FaMinusSquare 
+  FaMinusSquare,
+  FaRoute
+
 } from "react-icons/fa";
 
 import React from "react";
@@ -98,8 +100,8 @@ const SidebarContent = () => (
               </NavLink>
             </li>
             <li>
-              <NavLink 
-                to="/vendas" 
+              <NavLink
+                to="/vendas"
                 className={({ isActive }) => 
                   `text-decoration-none d-block py-1 ${isActive ? "fw-bold text-primary" : "text-dark"}`
                 }
@@ -107,6 +109,18 @@ const SidebarContent = () => (
                 <FaMinusSquare className="me-2" />Saída
               </NavLink>
             </li>
+
+             <li>
+              <NavLink
+                to="/produtos-em-rota"
+                className={({ isActive }) =>
+                  `text-decoration-none d-block py-1 ${isActive ? "fw-bold text-primary" : "text-dark"}`
+                }
+              >
+                <FaRoute className="me-2" />Produto em rota
+              </NavLink>
+            </li>
+            
           </ul>
         </Accordion.Body>
       </Accordion.Item>
