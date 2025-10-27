@@ -1,0 +1,81 @@
+/* Container principal */
+.custom-container {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 600px;
+  margin: 40px auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Título */
+.custom-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Formulário */
+.custom-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Campos */
+.custom-form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.custom-form-group label {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.custom-form-group input,
+.custom-form-group select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+/* Botões */
+.custom-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.custom-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+/* Botão salvar */
+.custom-btn-save {
+  background-color: #007bff;
+  color: white;
+}
+
+.custom-btn-save:hover {
+  background-color: #0056b3;
+}
+
+/* Botão cancelar */
+.custom-btn-cancel {
+  background-color: #ccc;
+  color: #333;
+}
+
+.custom-btn-cancel:hover {
+  background-color: #aaa;
+}

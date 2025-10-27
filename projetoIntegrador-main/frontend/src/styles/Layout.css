@@ -1,0 +1,58 @@
+/* Estrutura base */
+.app-container {
+  display: flex;
+  min-height: 100vh; /* Altura mínima de 100% da tela, mas permite crescer */
+  width: 100%; /* Largura total da tela */
+  overflow-y: auto; /* Adiciona uma barra de rolagem vertical apenas se necessário */
+}
+
+/* Sidebar fixa */
+.sidebar {
+  width: 250px;           /* largura fixa */
+  background-color: #fff;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);;
+  height: 100vh;          /* altura total */
+  position: fixed;        /* fixa na lateral esquerda */
+  top: 0;
+  left: 0;
+  transition: transform 0.3s ease; /* animação quando recolhermos depois */
+  z-index: 1000;
+}
+.sidebar.closed {
+  transform: translateX(-100%);
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+  transition: margin-left 0.3s ease;
+}
+
+/* Quando sidebar aberta, afasta o conteúdo */
+.main-content.shifted {
+  margin-left: 250px;
+}
+
+/* No mobile, o conteúdo não deve ser empurrado */
+@media (max-width: 768px) {
+  .main-content.shifted {
+    margin-left: 0;
+  }
+}
+.hamburger {
+  position: absolute; /* Mudamos para 'absolute' */
+  top: 20px;         /* Ajuste a distância do topo */
+  right: 20px;       /* Mova para a direita */
+  z-index: 1002;     /* Acima de tudo para que esteja sempre visível e clicável */
+  background: #1e293b;
+  color: #fff;
+  border: none;
+  font-size: 22px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
