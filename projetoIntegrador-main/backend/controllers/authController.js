@@ -1,6 +1,5 @@
 const pool = require('../models/db');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const { hashPassword, verifyPassword, signToken } = require('../utils/security');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'development-secret';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '8h';
@@ -11,8 +10,8 @@ const buildTokenPayload = (user) => ({
   empresa_id: user.empresa_id,
 });
 
-const signToken = (user) =>
-  jwt.sign(buildTokenPayload(user), JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+const issueToken = (user) =>
+  signToken(buildTokenPayload(user), JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 
 const mapUserResponse = (row) => ({
   id: row.id,
@@ -63,7 +62,7 @@ exports.register = async (req, res) => {
 
     const empresa = empresaResult.rows[0];
 
-    const senhaHash = await bcrypt.hash(String(senha), 10);
+    const senhaHash = hashPassword(String(senha));
 
     const usuarioResult = await pool.query(
       `INSERT INTO usuarios (empresa_id, nome, email, senha_hash)
@@ -76,7 +75,7 @@ exports.register = async (req, res) => {
 
     await pool.query('COMMIT');
 
-    const token = signToken(usuario);
+    const token = issueToken(usuario);
 
     return res.status(201).json({
       token,
@@ -124,13 +123,13 @@ exports.login = async (req, res) => {
 
     const usuario = resultado.rows[0];
 
-    const senhaValida = await bcrypt.compare(String(senha), usuario.senha_hash);
+    const senhaValida = verifyPassword(String(senha), usuario.senha_hash);
 
     if (!senhaValida) {
       return res.status(401).json({ error: 'Credenciais inválidas.' });
     }
 
-    const token = signToken(usuario);
+    const token = issueToken(usuario);
 
     return res.json({
       token,
