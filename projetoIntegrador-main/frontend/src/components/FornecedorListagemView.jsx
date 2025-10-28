@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import FornecedorCadastroModal from "./FornecedorCadastroModal";
 import FornecedorExclusaoModal from "./FornecedorExclusaoModal";
 import FornecedorEdicaoModal from "./FornecedorEdicaoModal";
-import "../styles/ProdutoListagem.css"; 
+import "../styles/ProdutoListagem.css";
+import { useAuth } from '../context/AuthContext';
 
 const FornecedorListagemView = () => {
   const [fornecedores, setFornecedores] = useState([]);
@@ -10,10 +11,11 @@ const FornecedorListagemView = () => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [fornecedorParaExcluir, setFornecedorParaExcluir] = useState(null);
   const [fornecedorParaEditar, setFornecedorParaEditar] = useState(null);
+  const { authFetch } = useAuth();
 
   const carregarFornecedores = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/fornecedores");
+      const response = await authFetch("http://localhost:5000/api/fornecedores");
       const data = await response.json();
       setFornecedores(data);
     } catch (error) {
@@ -33,7 +35,7 @@ const FornecedorListagemView = () => {
 
   const excluirFornecedor = async (id) => {
     try {
-      await fetch(`http://localhost:5000/api/fornecedores/${id}`, {
+      await authFetch(`http://localhost:5000/api/fornecedores/${id}`, {
         method: "DELETE",
       });
       carregarFornecedores();

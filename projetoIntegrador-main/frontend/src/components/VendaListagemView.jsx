@@ -1,17 +1,19 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from '../context/AuthContext';
 
 const VendaListagemView = () => {
   const [vendas, setVendas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
   const navigate = useNavigate();
+  const { authFetch } = useAuth();
 
   const carregarVendas = useCallback(async () => {
     try {
       setErro(null);
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/vendas");
+      const response = await authFetch("http://localhost:5000/api/vendas");
       if (!response.ok) throw new Error("Erro ao carregar vendas");
       const data = await response.json();
       setVendas(Array.isArray(data) ? data : []);
@@ -21,7 +23,7 @@ const VendaListagemView = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [authFetch]);
 
   useEffect(() => {
     carregarVendas();

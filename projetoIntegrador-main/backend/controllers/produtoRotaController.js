@@ -3,24 +3,27 @@ const pool = require('../models/db');
 const STATUS_EM_ROTA = 'Em rota';
 const STATUS_RECEBIDO = 'Recebido';
 
-exports.getProdutosEmRota = async (_req, res) => {
+exports.getProdutosEmRota = async (req, res) => {
   try {
-    const result = await pool.query(`
-      SELECT
-        pr.id,
-        pr.produto_id,
-        p.nome AS produto_nome,
-        p.codigo AS produto_codigo,
-        pr.quantidade,
-        pr.destino,
-        pr.data_envio,
-        pr.data_retorno,
-        pr.status,
-        pr.observacao
-      FROM produtos_em_rota pr
-      JOIN produtos p ON pr.produto_id = p.id
-      ORDER BY pr.data_envio DESC, pr.id DESC
-    `);
+    const empresaId = req.user.empresa_id;
+    const result = await pool.query(
+      `SELECT
+         pr.id,
+         pr.produto_id,
+         p.nome AS produto_nome,
+         p.codigo AS produto_codigo,
+         pr.quantidade,
+         pr.destino,
+         pr.data_envio,
+         pr.data_retorno,
+         pr.status,
+         pr.observacao
+        FROM produtos_em_rota pr
+        JOIN produtos p ON pr.produto_id = p.id
+       WHERE pr.empresa_id = $1
+       ORDER BY pr.data_envio DESC, pr.id DESC`,
+      [empresaId]
+    );
 
     return res.json(result.rows);
   } catch (error) {
@@ -48,11 +51,13 @@ exports.createProdutoEmRota = async (req, res) => {
   }
 
   try {
+    const empresaId = req.user.empresa_id;
+
     await pool.query('BEGIN');
 
     const produtoRes = await pool.query(
-      'SELECT id, quantidade FROM produtos WHERE id = $1 FOR UPDATE',
-      [produto_id]
+      'SELECT id, quantidade FROM produtos WHERE id = $1 AND empresa_id = $2 FOR UPDATE',
+      [produto_id, empresaId]
     );
 
     if (produtoRes.rowCount === 0) {
@@ -67,18 +72,26 @@ exports.createProdutoEmRota = async (req, res) => {
     }
 
     const insertRes = await pool.query(
-      `INSERT INTO produtos_em_rota (produto_id, quantidade, destino, data_envio, status, observacao)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO produtos_em_rota (empresa_id, produto_id, quantidade, destino, data_envio, status, observacao)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
-      [produto_id, quantidade, destino, dataEnvioFormatada, STATUS_EM_ROTA, observacao]
+      [
+        empresaId,
+        produto_id,
+        quantidade,
+        destino,
+        dataEnvioFormatada,
+        STATUS_EM_ROTA,
+        observacao,
+      ]
     );
 
     await pool.query(
       `UPDATE produtos
          SET quantidade = quantidade - $1,
              quantidade_em_rota = quantidade_em_rota + $1
-       WHERE id = $2`,
-      [quantidade, produto_id]
+       WHERE id = $2 AND empresa_id = $3`,
+      [quantidade, produto_id, empresaId]
     );
 
     await pool.query('COMMIT');
@@ -104,9 +117,11 @@ exports.marcarComoRecebido = async (req, res) => {
   try {
     await pool.query('BEGIN');
 
+    const empresaId = req.user.empresa_id;
+
     const registroRes = await pool.query(
-      'SELECT id, produto_id, quantidade, status FROM produtos_em_rota WHERE id = $1 FOR UPDATE',
-      [id]
+      'SELECT id, produto_id, quantidade, status FROM produtos_em_rota WHERE id = $1 AND empresa_id = $2 FOR UPDATE',
+      [id, empresaId]
     );
 
     if (registroRes.rowCount === 0) {
@@ -133,8 +148,8 @@ exports.marcarComoRecebido = async (req, res) => {
     await pool.query(
       `UPDATE produtos
          SET quantidade_em_rota = GREATEST(quantidade_em_rota - $1, 0)
-       WHERE id = $2`,
-      [registro.quantidade, registro.produto_id]
+       WHERE id = $2 AND empresa_id = $3`,
+      [registro.quantidade, registro.produto_id, empresaId]
     );
 
     await pool.query('COMMIT');
@@ -160,9 +175,11 @@ exports.deleteProdutoEmRota = async (req, res) => {
   try {
     await pool.query('BEGIN');
 
+    const empresaId = req.user.empresa_id;
+
     const registroRes = await pool.query(
-      'SELECT id, produto_id, quantidade, status FROM produtos_em_rota WHERE id = $1 FOR UPDATE',
-      [id]
+      'SELECT id, produto_id, quantidade, status FROM produtos_em_rota WHERE id = $1 AND empresa_id = $2 FOR UPDATE',
+      [id, empresaId]
     );
 
     if (registroRes.rowCount === 0) {
@@ -173,8 +190,8 @@ exports.deleteProdutoEmRota = async (req, res) => {
     const registro = registroRes.rows[0];
 
     await pool.query(
-      'DELETE FROM produtos_em_rota WHERE id = $1',
-      [id]
+      'DELETE FROM produtos_em_rota WHERE id = $1 AND empresa_id = $2',
+      [id, empresaId]
     );
 
     if (registro.status === STATUS_EM_ROTA) {
@@ -182,8 +199,8 @@ exports.deleteProdutoEmRota = async (req, res) => {
         `UPDATE produtos
            SET quantidade = quantidade + $1,
                quantidade_em_rota = GREATEST(quantidade_em_rota - $1, 0)
-         WHERE id = $2`,
-        [registro.quantidade, registro.produto_id]
+         WHERE id = $2 AND empresa_id = $3`,
+        [registro.quantidade, registro.produto_id, empresaId]
       );
     }
 

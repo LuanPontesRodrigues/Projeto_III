@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../styles/ProdutoCadastroModal.css"; // usando o mesmo CSS genérico
+import { useAuth } from '../context/AuthContext';
 
 const ClienteCadastroModal = ({ onClose, onClienteCadastrado }) => {
   const [nome, setNome] = useState("");
@@ -8,6 +9,7 @@ const ClienteCadastroModal = ({ onClose, onClienteCadastrado }) => {
   const [endereco, setEndereco] = useState("");
   const [complemento, setComplemento] = useState("");
   const [telefone, setTelefone] = useState("");
+  const { authFetch } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,7 +24,7 @@ const ClienteCadastroModal = ({ onClose, onClienteCadastrado }) => {
     };
 
     try {
-      const response = await fetch("http://localhost:5000/api/clientes", {
+      const response = await authFetch("http://localhost:5000/api/clientes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(cliente),

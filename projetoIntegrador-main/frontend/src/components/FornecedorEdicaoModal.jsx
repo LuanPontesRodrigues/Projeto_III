@@ -1,31 +1,34 @@
 import React, { useState } from "react";
-import '../styles/ProdutoCadastroModal.css';
+import { Modal, Button, Form } from "react-bootstrap";
+import { useAuth } from '../context/AuthContext';
 
-const ProdutoEdicaoModal = ({ produto, onClose, onProdutoAtualizado }) => {
-  const [nome, setNome] = useState(produto?.nome || "");
-  const [codigo, setCodigo] = useState(produto?.codigo || "");
+const FornecedorEdicaoModal = ({ fornecedor, onClose, onFornecedorAtualizado }) => {
+  const [nome, setNome] = useState(fornecedor?.nome || "");
+  const [cnpj, setCnpj] = useState(fornecedor?.cnpj || "");
+  const [telefone, setTelefone] = useState(fornecedor?.telefone || "");
+  const { authFetch } = useAuth();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const produtoAtualizado = { ...produto, nome, codigo };
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
     try {
-      const response = await fetch(`http://localhost:5000/api/produtos/${produto.id}`, {
+      const response = await authFetch(`http://localhost:5000/api/fornecedores/${fornecedor.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(produtoAtualizado),
+        body: JSON.stringify({ nome, cnpj, telefone }),
       });
 
-      if (response.ok) {
-        onProdutoAtualizado();
-        onClose();
-      } else {
-        alert("Erro ao atualizar produto");
+      if (!response.ok) {
+        throw new Error("Erro ao atualizar fornecedor");
       }
+
+      if (typeof onFornecedorAtualizado === "function") {
+        onFornecedorAtualizado();
+      }
+      onClose();
     } catch (error) {
-      console.error("Erro:", error);
-      alert("Erro ao conectar com o servidor.");
+      console.error("Erro ao atualizar fornecedor:", error);
+      alert(error.message || "Erro ao atualizar fornecedor");
     }
   };
 
@@ -33,26 +36,36 @@ const ProdutoEdicaoModal = ({ produto, onClose, onProdutoAtualizado }) => {
     <Modal show onHide={onClose} centered>
       <Form onSubmit={handleSubmit}>
         <Modal.Header closeButton>
-          <Modal.Title>Editar produto</Modal.Title>
+          <Modal.Title>Editar fornecedor</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
           <Form.Group className="mb-3">
-            <Form.Label>Nome do produto</Form.Label>
+            <Form.Label>Nome</Form.Label>
             <Form.Control
               type="text"
               value={nome}
-              onChange={(e) => setNome(e.target.value)}
+              onChange={(event) => setNome(event.target.value)}
               required
             />
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Código do produto</Form.Label>
+            <Form.Label>CNPJ</Form.Label>
             <Form.Control
               type="text"
-              value={codigo}
-              onChange={(e) => setCodigo(e.target.value)}
+              value={cnpj}
+              onChange={(event) => setCnpj(event.target.value)}
+              required
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-0">
+            <Form.Label>Telefone</Form.Label>
+            <Form.Control
+              type="text"
+              value={telefone}
+              onChange={(event) => setTelefone(event.target.value)}
               required
             />
           </Form.Group>
@@ -62,7 +75,7 @@ const ProdutoEdicaoModal = ({ produto, onClose, onProdutoAtualizado }) => {
           <Button variant="secondary" onClick={onClose}>
             Cancelar
           </Button>
-          <Button variant="warning" type="submit">
+          <Button variant="primary" type="submit">
             Salvar alterações
           </Button>
         </Modal.Footer>
@@ -71,4 +84,4 @@ const ProdutoEdicaoModal = ({ produto, onClose, onProdutoAtualizado }) => {
   );
 };
 
-export default ProdutoEdicaoModal;
+export default FornecedorEdicaoModal;

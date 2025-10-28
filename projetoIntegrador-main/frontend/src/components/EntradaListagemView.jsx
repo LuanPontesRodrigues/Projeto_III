@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from '../context/AuthContext';
 
 const EntradaListagemView = () => {
   const [entradas, setEntradas] = useState([]);
   const navigate = useNavigate();
+  const { authFetch } = useAuth();
 
   // Carregar entradas do backend
   useEffect(() => {
     async function carregarEntradas() {
       try {
-        const res = await fetch("http://localhost:5000/api/entrada");
+        const res = await authFetch("http://localhost:5000/api/entrada");
         const data = await res.json();
         setEntradas(data);
       } catch (err) {
@@ -17,14 +19,14 @@ const EntradaListagemView = () => {
       }
     }
     carregarEntradas();
-  }, []);
+  }, [authFetch]);
 
   // Excluir entrada
   const handleDelete = async (id) => {
     if (!window.confirm("Deseja realmente excluir esta entrada?")) return;
 
     try {
-      await fetch(`http://localhost:5000/api/entrada/${id}`, { method: "DELETE" });
+      await authFetch(`http://localhost:5000/api/entrada/${id}`, { method: "DELETE" });
       setEntradas(entradas.filter((item) => item.id !== id));
     } catch (err) {
       console.error("Erro ao excluir entrada:", err);

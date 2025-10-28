@@ -13,16 +13,26 @@ import {
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { Offcanvas, Accordion } from "react-bootstrap";
+import { useAuth } from '../context/AuthContext';
 
-const SidebarContent = () => (
+const SidebarContent = ({ onLogout, empresa, user }) => (
   <div className="p-3" style={{ minWidth: "250px" }}>
     <div className="sidebar-logo text-center mb-4">
-      <img 
-        src="/Logo.png" 
-        alt="Logo" 
-        className="img-fluid" 
-        style={{ maxWidth: "150px", height: "auto" }} 
+      <img
+        src="/Logo.png"
+        alt="Logo"
+        className="img-fluid"
+        style={{ maxWidth: "150px", height: "auto" }}
       />
+      {empresa?.nome && (
+        <div className="mt-2">
+          <small className="text-muted d-block">Empresa</small>
+          <strong className="text-dark">{empresa.nome}</strong>
+          {user?.nome && (
+            <small className="text-muted d-block">{user.nome}</small>
+          )}
+        </div>
+      )}
     </div>
 
     {/* Dashboard fixo */}
@@ -125,7 +135,7 @@ const SidebarContent = () => (
 
     {/* Logout */}
     <div className="mt-4">
-      <button className="btn btn-outline-danger w-100">
+      <button className="btn btn-outline-danger w-100" onClick={onLogout}>
         <FaSignOutAlt className="me-2" />Encerrar Sessão
       </button>
     </div>
@@ -133,11 +143,20 @@ const SidebarContent = () => (
 );
 
 const Sidebar = ({ show, setShow }) => {
+  const { logout, empresa, user } = useAuth();
+
+  const handleLogout = () => {
+    if (typeof setShow === 'function') {
+      setShow(false);
+    }
+    logout();
+  };
+
   return (
     <>
       {/* Sidebar fixa no desktop */}
       <div className="d-none d-md-block bg-light border-end vh-100">
-        <SidebarContent />
+        <SidebarContent onLogout={handleLogout} empresa={empresa} user={user} />
       </div>
 
       {/* Offcanvas no mobile */}
@@ -151,7 +170,7 @@ const Sidebar = ({ show, setShow }) => {
           <Offcanvas.Title>Menu</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
-          <SidebarContent />
+          <SidebarContent onLogout={handleLogout} empresa={empresa} user={user} />
         </Offcanvas.Body>
       </Offcanvas>
     </>

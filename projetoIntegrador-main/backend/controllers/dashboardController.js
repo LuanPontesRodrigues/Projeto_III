@@ -3,14 +3,18 @@ const pool = require('../models/db');
 
 exports.obterDadosDashboard = async (req, res) => {
   try {
-    const result = await pool.query(`
-      SELECT p.categoria, EXTRACT(MONTH FROM v.data_venda) AS mes, 
-       SUM(v.quantidade * v.valor_unitario) AS total
-      FROM vendas v
-      JOIN produtos p ON v.produto_id = p.id
-      GROUP BY p.categoria, mes
-
-    `);
+    const empresaId = req.user.empresa_id;
+    const result = await pool.query(
+      `SELECT p.categoria,
+              EXTRACT(MONTH FROM v.data_venda) AS mes,
+              SUM(v.quantidade * v.valor_unitario) AS total
+         FROM vendas v
+         JOIN produtos p ON v.produto_id = p.id
+        WHERE v.empresa_id = $1
+          AND p.empresa_id = $1
+        GROUP BY p.categoria, mes`,
+      [empresaId]
+    );
 
     const dados = result.rows;
 

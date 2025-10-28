@@ -2,27 +2,42 @@ import React, { useEffect, useState } from 'react';
 import '../styles/DashboardEstoque.css';
 import { Line, Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, LineElement, BarElement, CategoryScale, LinearScale, PointElement } from 'chart.js';
+import { useAuth } from '../context/AuthContext';
 
 ChartJS.register(LineElement, BarElement, CategoryScale, LinearScale, PointElement);
 
 const DashboardEstoque = () => {
   const [dados, setDados] = useState(null);
+  const { authFetch } = useAuth();
 
   useEffect(() => {
-  const carregar = () => {
-    fetch('http://localhost:5000/api/dashboard')
-      .then(res => res.json())
-      .then(data => setDados(data));
-  };
+    let ativo = true;
 
-  // Carrega ao iniciar
-  carregar();
+    const carregar = async () => {
+      try {
+        const response = await authFetch('http://localhost:5000/api/dashboard');
+        if (!response.ok) {
+          return;
+        }
+        const data = await response.json();
+        if (ativo) {
+          setDados(data);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dashboard:', error);
+      }
+    };
 
-  // Atualiza automaticamente quando o evento for disparado
-  window.addEventListener("atualizarDashboard", carregar);
+    carregar();
 
-  return () => window.removeEventListener("atualizarDashboard", carregar);
-}, []);
+    const handler = () => carregar();
+    window.addEventListener('atualizarDashboard', handler);
+
+    return () => {
+      ativo = false;
+      window.removeEventListener('atualizarDashboard', handler);
+    };
+  }, [authFetch]);
 
 
   if (!dados) return <div style={{ color: '#000', padding: '20px' }}>Carregando...</div>;

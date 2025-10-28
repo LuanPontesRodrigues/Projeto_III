@@ -3,7 +3,11 @@ const pool = require('../models/db'); // importa a conexão com o banco
 // 📋 Buscar todos os clientes
 exports.getClientes = async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM clientes ORDER BY id DESC");
+    const empresaId = req.user.empresa_id;
+    const result = await pool.query(
+      'SELECT * FROM clientes WHERE empresa_id = $1 ORDER BY id DESC',
+      [empresaId]
+    );
     res.json(result.rows);
   } catch (error) {
     console.error("Erro ao listar clientes:", error);
@@ -20,12 +24,21 @@ exports.createCliente = async (req, res) => {
       return res.status(400).json({ message: "Nome, tipo de cliente e CPF/CNPJ são obrigatórios." });
     }
 
+    const empresaId = req.user.empresa_id;
     const query = `
-      INSERT INTO clientes (nome, tipo_cliente, cpf_cnpj, endereco, complemento, telefone)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO clientes (empresa_id, nome, tipo_cliente, cpf_cnpj, endereco, complemento, telefone)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *;
     `;
-    const values = [nome, tipo_cliente, cpf_cnpj, endereco, complemento, telefone];
+    const values = [
+      empresaId,
+      nome,
+      tipo_cliente,
+      cpf_cnpj,
+      endereco,
+      complemento,
+      telefone,
+    ];
     const result = await pool.query(query, values);
 
     res.status(201).json({
@@ -44,13 +57,19 @@ exports.updateCliente = async (req, res) => {
     const { id } = req.params;
     const { nome, tipo_cliente, cpf_cnpj, endereco, complemento, telefone } = req.body;
 
+    const empresaId = req.user.empresa_id;
     const query = `
       UPDATE clientes
-      SET nome = $1, tipo_cliente = $2, cpf_cnpj = $3, endereco = $4, complemento = $5, telefone = $6
-      WHERE id = $7
-      RETURNING *;
+         SET nome = $1,
+             tipo_cliente = $2,
+             cpf_cnpj = $3,
+             endereco = $4,
+             complemento = $5,
+             telefone = $6
+       WHERE id = $7 AND empresa_id = $8
+       RETURNING *;
     `;
-    const values = [nome, tipo_cliente, cpf_cnpj, endereco, complemento, telefone, id];
+    const values = [nome, tipo_cliente, cpf_cnpj, endereco, complemento, telefone, id, empresaId];
     const result = await pool.query(query, values);
 
     if (result.rowCount === 0) {
@@ -71,7 +90,8 @@ exports.updateCliente = async (req, res) => {
 exports.deleteCliente = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await pool.query("DELETE FROM clientes WHERE id = $1", [id]);
+    const empresaId = req.user.empresa_id;
+    const result = await pool.query('DELETE FROM clientes WHERE id = $1 AND empresa_id = $2', [id, empresaId]);
 
     if (result.rowCount === 0) {
       return res.status(404).json({ message: "Cliente não encontrado." });

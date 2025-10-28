@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from '../context/AuthContext';
 
 const VendasFormView = () => {
   const [produtos, setProdutos] = useState([]);
@@ -17,14 +18,15 @@ const VendasFormView = () => {
   });
 
   const navigate = useNavigate();
+  const { authFetch } = useAuth();
 
   // Carrega produtos e clientes
   useEffect(() => {
     (async () => {
       try {
         const [rp, rc] = await Promise.all([
-          fetch("http://localhost:5000/api/produtos"),
-          fetch("http://localhost:5000/api/clientes"),
+          authFetch("http://localhost:5000/api/produtos"),
+          authFetch("http://localhost:5000/api/clientes"),
         ]);
         const [prodData, cliData] = await Promise.all([rp.json(), rc.json()]);
         setProdutos(Array.isArray(prodData) ? prodData : []);
@@ -34,7 +36,7 @@ const VendasFormView = () => {
         alert("Falha ao carregar produtos/clientes");
       }
     })();
-  }, []);
+  }, [authFetch]);
 
   // Produto selecionado
   const produtoSel = useMemo(
@@ -88,7 +90,7 @@ const VendasFormView = () => {
         cliente_id: form.cliente_id ? Number(form.cliente_id) : undefined,
       };
 
-      const res = await fetch("http://localhost:5000/api/vendas", {
+      const res = await authFetch("http://localhost:5000/api/vendas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
