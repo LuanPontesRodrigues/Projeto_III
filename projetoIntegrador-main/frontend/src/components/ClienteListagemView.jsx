@@ -3,6 +3,8 @@ import ClienteCadastroModal from './ClienteCadastroModal';
 import ClienteExclusaoModal from './ClienteExclusaoModal';
 import ClienteEdicaoModal from './ClienteEdicaoModal';
 import '../styles/ProdutoListagem.css';
+import { useAuth } from '../context/AuthContext';
+
 
 const ClienteListagemView = () => {
   const [clientes, setClientes] = useState([]);
@@ -10,10 +12,12 @@ const ClienteListagemView = () => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [clienteParaExcluir, setClienteParaExcluir] = useState(null);
   const [clienteParaEditar, setClienteParaEditar] = useState(null);
+  const { authFetch } = useAuth();
+
 
   const carregarClientes = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/clientes');
+      const response = await authFetch('http://localhost:5000/api/clientes');
       const data = await response.json();
       setClientes(data);
     } catch (error) {
@@ -31,7 +35,7 @@ const ClienteListagemView = () => {
 
   const excluirCliente = async (id) => {
     try {
-      await fetch(`http://localhost:5000/api/clientes/${id}`, {
+      await authFetch(`http://localhost:5000/api/clientes/${id}`, {
         method: 'DELETE',
       });
       carregarClientes();

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Container, Row, Col, Table, Button, Badge } from "react-bootstrap";
 import { FaPlus, FaCheckCircle, FaTrash } from "react-icons/fa";
 import ProdutoEmRotaCadastroModal from "./ProdutoEmRotaCadastroModal";
+import { useAuth } from '../context/AuthContext';
 
 const formatarData = (valor) => {
   if (!valor) return "-";
@@ -15,12 +16,13 @@ const ProdutoEmRotaListagemView = () => {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
+  const { authFetch } = useAuth();
 
   const carregarRegistros = useCallback(async () => {
     setCarregando(true);
     setErro(null);
     try {
-      const response = await fetch("http://localhost:5000/api/produtos-em-rota");
+      const response = await authFetch("http://localhost:5000/api/produtos-em-rota");
       if (!response.ok) throw new Error("Não foi possível carregar os produtos em rota.");
       const data = await response.json();
       setRegistros(Array.isArray(data) ? data : []);
@@ -30,7 +32,7 @@ const ProdutoEmRotaListagemView = () => {
     } finally {
       setCarregando(false);
     }
-  }, []);
+  }, [authFetch]);
 
   useEffect(() => {
     carregarRegistros();
@@ -39,7 +41,7 @@ const ProdutoEmRotaListagemView = () => {
   const marcarComoRecebido = async (id) => {
     setErro(null);
     try {
-      const response = await fetch(`http://localhost:5000/api/produtos-em-rota/${id}/status`, {
+      const response = await authFetch(`http://localhost:5000/api/produtos-em-rota/${id}/status`, {
         method: "PATCH",
       });
       if (!response.ok) {
@@ -58,7 +60,7 @@ const ProdutoEmRotaListagemView = () => {
 
     setErro(null);
     try {
-      const response = await fetch(`http://localhost:5000/api/produtos-em-rota/${id}`, {
+      const response = await authFetch(`http://localhost:5000/api/produtos-em-rota/${id}`, {
         method: "DELETE",
       });
       if (!response.ok) {
@@ -94,7 +96,7 @@ const ProdutoEmRotaListagemView = () => {
       {carregando ? (
         <div className="alert alert-secondary">Carregando…</div>
       ) : (
-        <Table striped bordered hover responsive className="align-middle">
+        <Table striped bordered hover responsive className="align-middle tabela-produtos">
           <thead>
             <tr>
               <th>Produto</th>

@@ -1,49 +1,50 @@
 import React, { useState, useEffect } from "react";
 import "../styles/ProdutoCadastroModal.css";
+import { useAuth } from '../context/AuthContext';
 
 const ClienteEditarModal = ({ cliente, onClose, onClienteAtualizado }) => {
   const [nome, setNome] = useState("");
-  const [tipoCliente, setTipoCliente] = useState("cpf");
-  const [cpf, setCpf] = useState("");
-  const [cnpj, setCnpj] = useState("");
+  const [tipoCliente, setTipoCliente] = useState("Física");
+  const [cpfCnpj, setCpfCnpj] = useState("");
   const [endereco, setEndereco] = useState("");
   const [complemento, setComplemento] = useState("");
   const [telefone, setTelefone] = useState("");
+  const { authFetch } = useAuth();
 
   useEffect(() => {
     if (cliente) {
       setNome(cliente.nome || "");
-      setTipoCliente(cliente.tipoCliente || "cpf");
-      setCpf(cliente.cpf || "");
-      setCnpj(cliente.cnpj || "");
+      setTipoCliente(cliente.tipo_cliente || cliente.tipoCliente || "Física");
+      setCpfCnpj(cliente.cpf_cnpj || cliente.cpf || cliente.cnpj || "");
       setEndereco(cliente.endereco || "");
       setComplemento(cliente.complemento || "");
       setTelefone(cliente.telefone || "");
     }
   }, [cliente]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
     const clienteAtualizado = {
       nome,
-      tipoCliente,
-      cpf: tipoCliente === "cpf" ? cpf : null,
-      cnpj: tipoCliente === "cnpj" ? cnpj : null,
+      tipo_cliente: tipoCliente,
+      cpf_cnpj: cpfCnpj,
       endereco,
       complemento,
       telefone,
     };
 
     try {
-      const response = await fetch(`http://localhost:5000/api/clientes/${cliente.id}`, {
+      const response = await authFetch(`http://localhost:5000/api/clientes/${cliente.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(clienteAtualizado),
       });
 
       if (response.ok) {
-        onClienteAtualizado();
+        if (typeof onClienteAtualizado === "function") {
+          onClienteAtualizado();
+        }
         onClose();
       } else {
         alert("Erro ao atualizar cliente");
@@ -64,23 +65,17 @@ const ClienteEditarModal = ({ cliente, onClose, onClienteAtualizado }) => {
 
           <label>Tipo de Cliente</label>
           <select value={tipoCliente} onChange={(e) => setTipoCliente(e.target.value)}>
-            <option value="cpf">Pessoa Física (CPF)</option>
-            <option value="cnpj">Pessoa Jurídica (CNPJ)</option>
+            <option value="Física">Pessoa Física (CPF)</option>
+            <option value="Jurídica">Pessoa Jurídica (CNPJ)</option>
           </select>
 
-          {tipoCliente === "cpf" && (
-            <>
-              <label>CPF</label>
-              <input maxLength={11} value={cpf} onChange={(e) => setCpf(e.target.value)} />
-            </>
-          )}
-
-          {tipoCliente === "cnpj" && (
-            <>
-              <label>CNPJ</label>
-              <input maxLength={14} value={cnpj} onChange={(e) => setCnpj(e.target.value)} />
-            </>
-          )}
+          <label>{tipoCliente === "Física" ? "CPF" : "CNPJ"}</label>
+          <input
+            value={cpfCnpj}
+            onChange={(e) => setCpfCnpj(e.target.value)}
+            maxLength={tipoCliente === "Física" ? 11 : 14}
+            required
+          />
 
           <label>Endereço</label>
           <input value={endereco} onChange={(e) => setEndereco(e.target.value)} />

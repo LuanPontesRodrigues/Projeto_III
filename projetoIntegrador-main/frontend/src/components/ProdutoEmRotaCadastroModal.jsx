@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Form, Button, Alert, Spinner } from "react-bootstrap";
+import { useAuth } from '../context/AuthContext';
 
 const initialFormState = () => ({
   produto_id: "",
@@ -15,6 +16,7 @@ const ProdutoEmRotaCadastroModal = ({ show, onClose, onCadastrado }) => {
   const [loadingProdutos, setLoadingProdutos] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [erro, setErro] = useState(null);
+  const { authFetch } = useAuth();
 
   useEffect(() => {
     if (!show) return;
@@ -23,7 +25,7 @@ const ProdutoEmRotaCadastroModal = ({ show, onClose, onCadastrado }) => {
       setLoadingProdutos(true);
       setErro(null);
       try {
-        const response = await fetch("http://localhost:5000/api/produtos");
+        const response = await authFetch("http://localhost:5000/api/produtos");
         if (!response.ok) throw new Error("Não foi possível carregar os produtos.");
         const data = await response.json();
         setProdutos(Array.isArray(data) ? data : []);
@@ -37,7 +39,7 @@ const ProdutoEmRotaCadastroModal = ({ show, onClose, onCadastrado }) => {
 
     carregarProdutos();
     setFormData(initialFormState());
-  }, [show]);
+  }, [show, authFetch]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -57,7 +59,7 @@ const ProdutoEmRotaCadastroModal = ({ show, onClose, onCadastrado }) => {
         quantidade: Number(formData.quantidade),
       };
 
-      const response = await fetch("http://localhost:5000/api/produtos-em-rota", {
+      const response = await authFetch("http://localhost:5000/api/produtos-em-rota", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

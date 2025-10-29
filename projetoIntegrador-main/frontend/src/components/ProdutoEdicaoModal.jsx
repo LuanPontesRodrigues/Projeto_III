@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/ProdutoCadastroModal.css';
+import { useAuth } from '../context/AuthContext';
+
 
 const ProdutoEditarModal = ({ produto, onClose, onProdutoAtualizado }) => {
   const [nome, setNome] = useState('');
   const [codigo, setCodigo] = useState('');
   const [preco, setPreco] = useState('');
   const [quantidade, setQuantidade] = useState('');
+    const { authFetch } = useAuth();
+
 
   useEffect(() => {
     if (produto) {
@@ -27,7 +31,8 @@ const ProdutoEditarModal = ({ produto, onClose, onProdutoAtualizado }) => {
     };
 
     try {
-      const response = await fetch(`http://localhost:5000/api/produtos/${produto.id}`, {
+       const response = await authFetch(`http://localhost:5000/api/produtos/${produto.id}`, {
+
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(produtoAtualizado),

@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
+import { useAuth } from '../context/AuthContext';
+
 
 const ProdutoCadastroModal = ({ onClose, onProdutoCadastrado }) => {
   const [nome, setNome] = useState("");
   const [codigo, setCodigo] = useState("");
+  const { authFetch } = useAuth();
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -11,7 +15,8 @@ const ProdutoCadastroModal = ({ onClose, onProdutoCadastrado }) => {
     const produto = { nome, codigo };
 
     try {
-      const response = await fetch("http://localhost:5000/api/produtos", {
+        const response = await authFetch("http://localhost:5000/api/produtos", {
+
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(produto),

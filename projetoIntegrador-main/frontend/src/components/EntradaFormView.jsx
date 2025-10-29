@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from '../context/AuthContext';
+
 
 const EntradaFormView = () => {
   const navigate = useNavigate();
@@ -14,18 +16,19 @@ const EntradaFormView = () => {
     valor_unitario: "",
   });
 
+  const { authFetch } = useAuth();
+
   useEffect(() => {
-    // Carregar produtos e fornecedores do backend (ajustado para porta 5000)
-    fetch("http://localhost:5000/api/produtos")
+    authFetch("http://localhost:5000/api/produtos")
       .then((res) => res.json())
       .then(setProdutos)
       .catch((err) => console.error("Erro ao carregar produtos:", err));
 
-    fetch("http://localhost:5000/api/fornecedores")
+    authFetch("http://localhost:5000/api/fornecedores")
       .then((res) => res.json())
       .then(setFornecedores)
       .catch((err) => console.error("Erro ao carregar fornecedores:", err));
-  }, []);
+  }, [authFetch]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,7 +39,7 @@ const EntradaFormView = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:5000/api/entrada", {
+      const response = await authFetch("http://localhost:5000/api/entrada", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(entrada),

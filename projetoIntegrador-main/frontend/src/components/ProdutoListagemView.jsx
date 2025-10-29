@@ -7,6 +7,8 @@ import { FaPlus, FaSearch, FaPencilAlt, FaTrash } from 'react-icons/fa';
 import ProdutoCadastroModal from './ProdutoCadastroModal';
 import ProdutoExclusaoModal from './ProdutoExclusaoModal';
 import ProdutoEdicaoModal from './ProdutoEdicaoModal';
+import { useAuth } from '../context/AuthContext';
+
 
 // Remova a importação do CSS antigo, o Bootstrap cuidará do estilo
 // import '../styles/ProdutoListagem.css';
@@ -17,10 +19,13 @@ const ProdutoListagemView = () => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [produtoParaExcluir, setProdutoParaExcluir] = useState(null);
   const [produtoParaEditar, setProdutoParaEditar] = useState(null);
+  const { authFetch } = useAuth();
+
 
   const carregarProdutos = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/produtos');
+    const response = await authFetch('http://localhost:5000/api/produtos');
+
       const data = await response.json();
       setProdutos(data);
     } catch (error) {
@@ -38,7 +43,7 @@ const ProdutoListagemView = () => {
 
   const ExcluirProduto = async (id) => {
     try {
-      await fetch(`http://localhost:5000/api/produtos/${id}`, {
+      await authFetch(`http://localhost:5000/api/produtos/${id}`, {
         method: "DELETE",
       });
       carregarProdutos(); // atualiza a listagem

@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const vendasController = require('../controllers/vendasController');
+const authMiddleware = require('../middleware/authMiddleware');
 
-// ✅ Corrigido — a rota agora é apenas "/"
+router.use(authMiddleware);
 router.post('/', vendasController.createVenda);
 router.get('/', vendasController.getVendas);
 

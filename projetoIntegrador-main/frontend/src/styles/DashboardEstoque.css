@@ -19,7 +19,7 @@
   flex-wrap: wrap; /* deixa quebrar em telas menores */
 }
 
-.card {
+.dashboard-content .card {
   flex: 1;
   padding: 20px;
   border-radius: 12px;
@@ -32,7 +32,7 @@
   min-width: 150px; /* garante legibilidade em telas pequenas */
 }
 
-.card span {
+.dashboard-content .card span {
   font-weight: bold;
   font-size: 22px;
   margin-top: 10px;
@@ -53,6 +53,19 @@
   background-color: #2a2a40;
   border-radius: 12px;
   margin-bottom: 20px;
+  height: clamp(260px, 40vh, 460px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Área do gráfico se expande para ocupar a altura disponível */
+.chart-area {
+  flex: 1;
+  min-height: 200px;
+}
+.chart-area canvas {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 /* ============================= */
@@ -63,12 +76,12 @@
     flex-direction: column;
   }
 
-  .card {
+  .dashboard-content .card {
     width: 100%;
     font-size: 16px;
   }
 
-  .card span {
+  .dashboard-content .card span {
     font-size: 18px;
   }
 
@@ -81,18 +94,19 @@
   .grafico-barras {
     min-width: 100%;
     padding: 15px;
+    height: clamp(220px, 45vh, 380px);
   }
 }
 
 /* ============================= */
 /* Ajustes ultra mínimos (até 320px) */
 @media (max-width: 320px) {
-  .card {
+  .dashboard-content .card {
     padding: 15px;
     font-size: 14px;
   }
 
-  .card span {
+  .dashboard-content .card span {
     font-size: 16px;
   }
 

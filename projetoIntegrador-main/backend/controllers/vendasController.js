@@ -1,9 +1,8 @@
-// backend/controllers/vendasController.js
 const pool = require('../models/db');
 
 // POST /api/vendas
 exports.createVenda = async (req, res) => {
-  let { produto_id, quantidade } = req.body;
+  let { produto_id, quantidade, valor_unitario, nota_fiscal, data_saida, cliente_id } = req.body;
 
   produto_id = Number(produto_id);
   quantidade = Number(quantidade);
@@ -13,10 +12,11 @@ exports.createVenda = async (req, res) => {
   }
 
   try {
+    const empresaId = req.user.empresa_id;
     // Confere produto e estoque
     const prodRes = await pool.query(
-      'SELECT id, preco, quantidade FROM produtos WHERE id = $1',
-      [produto_id]
+      'SELECT id, preco, quantidade FROM produtos WHERE id = $1 AND empresa_id = $2',
+      [produto_id, empresaId]
     );
     if (prodRes.rowCount === 0) {
       return res.status(404).json({ error: 'Produto não encontrado.' });
@@ -29,17 +29,39 @@ exports.createVenda = async (req, res) => {
 
     await pool.query('BEGIN');
 
-    await pool.query(
-      `INSERT INTO vendas (produto_id, quantidade, valor_unitario)
-       VALUES ($1, $2, $3)`,
-      [produto_id, quantidade, preco]
+    // Monta INSERT incluindo campos opcionais se existirem na tabela
+    // Tenta detectar colunas opcionais de forma simples
+    const colsRes = await pool.query(
+      `SELECT column_name FROM information_schema.columns
+         WHERE table_schema = 'public' AND table_name = 'vendas'`
     );
+    const colSet = new Set(colsRes.rows.map(r => r.column_name));
+
+    const cols = ['empresa_id', 'produto_id', 'quantidade', 'valor_unitario'];
+    const vals = [empresaId, produto_id, quantidade, (Number(valor_unitario) || preco)];
+
+    if (colSet.has('nota_fiscal') && typeof nota_fiscal !== 'undefined') {
+      cols.push('nota_fiscal');
+      vals.push(nota_fiscal || null);
+    }
+    if (colSet.has('cliente_id') && cliente_id) {
+      cols.push('cliente_id');
+      vals.push(Number(cliente_id));
+    }
+    if (colSet.has('data_venda') && data_saida) {
+      cols.push('data_venda');
+      vals.push(new Date(data_saida));
+    }
+
+    const params = vals.map((_, i) => `$${i + 1}`).join(', ');
+    const sql = `INSERT INTO vendas (${cols.join(', ')}) VALUES (${params})`;
+    await pool.query(sql, vals);
 
     await pool.query(
       `UPDATE produtos
          SET quantidade = quantidade - $1
-       WHERE id = $2`,
-      [quantidade, produto_id]
+       WHERE id = $2 AND empresa_id = $3`,
+      [quantidade, produto_id, empresaId]
     );
 
     await pool.query('COMMIT');
@@ -52,19 +74,26 @@ exports.createVenda = async (req, res) => {
 };
 
 // GET /api/vendas
-exports.getVendas = async (_req, res) => {
+exports.getVendas = async (req, res) => {
   try {
-    const result = await pool.query(`
-      SELECT
-        v.id,
-        p.nome AS produto,
-        v.quantidade,
-        v.valor_unitario,
-        v.data_venda AS data_entrada  -- alias p/ não quebrar o frontend atual
-      FROM vendas v
-      JOIN produtos p ON v.produto_id = p.id
-      ORDER BY v.data_venda DESC
-    `);
+    const empresaId = req.user.empresa_id;
+    const result = await pool.query(
+      `SELECT
+         v.id,
+         p.nome AS produto,
+         p.codigo AS codigo,
+         v.quantidade,
+         v.valor_unitario,
+         v.data_venda AS data_saida,
+         v.nota_fiscal,
+         c.nome AS cliente
+        FROM vendas v
+        JOIN produtos p ON v.produto_id = p.id
+        LEFT JOIN clientes c ON c.id = v.cliente_id AND c.empresa_id = v.empresa_id
+       WHERE v.empresa_id = $1
+       ORDER BY v.data_venda DESC`,
+      [empresaId]
+    );
 
     return res.json(result.rows);
   } catch (err) {
