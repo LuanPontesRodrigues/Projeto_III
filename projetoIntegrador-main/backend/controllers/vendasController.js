@@ -77,24 +77,65 @@ exports.createVenda = async (req, res) => {
 exports.getVendas = async (req, res) => {
   try {
     const empresaId = req.user.empresa_id;
-    const result = await pool.query(
-      `SELECT
-         v.id,
-         p.nome AS produto,
-         p.codigo AS codigo,
-         v.quantidade,
-         v.valor_unitario,
-         v.data_venda AS data_saida,
-         v.nota_fiscal,
-         c.nome AS cliente
-        FROM vendas v
-        JOIN produtos p ON v.produto_id = p.id
-        LEFT JOIN clientes c ON c.id = v.cliente_id AND c.empresa_id = v.empresa_id
-       WHERE v.empresa_id = $1
-       ORDER BY v.data_venda DESC`,
-      [empresaId]
+    // Detecta colunas opcionais na tabela vendas para evitar erros em esquemas diferentes
+    const colsRes = await pool.query(
+      `SELECT column_name FROM information_schema.columns
+         WHERE table_schema = 'public' AND table_name = 'vendas'`
     );
+    const colSet = new Set(colsRes.rows.map(r => r.column_name));
 
+    const hasClienteId = colSet.has('cliente_id');
+    const hasDataVenda = colSet.has('data_venda');
+    const hasNotaFiscal = colSet.has('nota_fiscal');
+
+    let selectParts = [
+      'v.id',
+      'p.nome AS produto',
+      'p.codigo AS codigo',
+      'v.quantidade',
+      'v.valor_unitario'
+    ];
+
+    // data_saida
+    if (hasDataVenda) {
+      selectParts.push('v.data_venda AS data_saida');
+    } else {
+      selectParts.push('NULL AS data_saida');
+    }
+
+    // nota_fiscal
+    if (hasNotaFiscal) {
+      selectParts.push('v.nota_fiscal');
+    } else {
+      selectParts.push('NULL AS nota_fiscal');
+    }
+
+    // cliente
+    if (hasClienteId) {
+      selectParts.push('c.nome AS cliente');
+    } else {
+      selectParts.push('NULL AS cliente');
+    }
+
+    let sql = `SELECT ${selectParts.join(', ')}
+                 FROM vendas v
+                 JOIN produtos p ON v.produto_id = p.id`;
+    if (hasClienteId) {
+      sql += `
+                 LEFT JOIN clientes c ON c.id = v.cliente_id AND c.empresa_id = v.empresa_id`;
+    }
+    sql += `
+                WHERE v.empresa_id = $1`;
+    // Ordena pela data se existir, senao por id
+    if (hasDataVenda) {
+      sql += `
+                ORDER BY v.data_venda DESC`;
+    } else {
+      sql += `
+                ORDER BY v.id DESC`;
+    }
+
+    const result = await pool.query(sql, [empresaId]);
     return res.json(result.rows);
   } catch (err) {
     console.error('Erro ao buscar vendas:', err);
